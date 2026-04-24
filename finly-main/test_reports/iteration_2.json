@@ -1,0 +1,46 @@
+{
+  "summary": "Regression testing of the 18 Finly bug fixes. Created /app/backend/tests/test_bug_fixes.py with 12 focused tests — ALL 12 BACKEND BUG TESTS PASS (BUG-01 total_expense/profit_loss, BUG-02 expired/logout token purge, BUG-04 invalid month 422, BUG-07 predict no-tx, BUG-08 limit=10000, BUG-14 CORS headers, BUG-15/17 lifespan + 'Mongo indexes ensured' log verified). Existing backend suite (27 tests) continues to pass. Frontend Playwright smoke: BUG-05 (ProtectedRoute redirect when user_data deleted) and BUG-16 (stripDigits 15-digit cap) verified PASS. BUG-10/03/08/09/12 frontend assertions were inconclusive in the session because the Finly splash/loader took long enough that subsequent pages rendered before dashboard data was present; however a React error boundary warning fired on /budgeting ('An error occurred in the <Budgeting> component') which the main agent should investigate.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Budgeting.jsx",
+        "issue": "React logged 'An error occurred in the <Budgeting> component' when navigating to /budgeting as a fresh user (no budgets yet). Likely a null/undefined destructure in the realisasi/capital render path. Needs investigation — may reproduce BUG-12 scenario or be an unrelated regression introduced during the refactor.",
+        "selector": "[data-testid='budget-load-error'] (not reached)",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_bug_fixes.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/bug_fixes_results.xml",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Investigate React error boundary triggered on /budgeting for a fresh user (no budgets). Wrap realisasi map / capital doc access in null-safe guards; confirm API response shape matches component expectations.",
+    "Optionally add data-testid='dashboard-month-select' or expose the period ticker text in a stable testid to make BUG-10 (2026-02-28 vs -31) assertable by automation."
+  ],
+  "critical_code_review_comments": [
+    "server.py month_range now correctly 422s malformed months (BUG-04) ✓. Consider moving the regex validation on the Query(..., pattern=...) in /dashboard/budgets/monthly-capital to rely on month_range only, so the error message is consistent ('Format bulan tidak valid') instead of FastAPI's generic string-pattern error.",
+    "current_user proactively deletes expired sessions (BUG-02) ✓, but the TTL index is on a missing 'expires_at_dt' field; either store expires_at as BSON date or drop that index block to avoid confusion.",
+    "dashboard total_expense = outcome + budget_total + monthly_capital matches the bug-report spec but is still accounting-unusual (budget plans are not actuals). Flag for product confirmation.",
+    "BudgetSaveIn does not include monthly_capital — good separation — but the PRD/bug report mixes the two. Ensure frontend only calls /monthly-capital for the capital field.",
+    "Tests of /api/predict on a user with zero transactions succeeds in ~2–4s thanks to run_forecast padding history; good (BUG-07)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_bug_fixes.py"
+  ],
+  "success_rate": {"backend": "100% (12/12 bug tests + 27/27 regression)", "frontend": "2/2 tested bugs pass; Budgeting component throws React error for new user (regression)"},
+  "test_credentials": "Bug-fix suite auto-registers a fresh bugfix_<uuid>@demo.co.id / Password123 user per module run to avoid 409s. Playwright UI test also uses a fresh uitest_<uuid>@demo.co.id account.",
+  "seed_data_creation": "test_bug01_total_expense_and_profit_loss seeds 1 income (500k), 1 outcome (100k), 1 budget row (Makanan 200k) and monthly_capital (50k) for 2026-03 under the fresh bug-fix user. No cross-user pollution.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run `REACT_APP_BACKEND_URL=<url> pytest /app/backend/tests/test_bug_fixes.py -v` (12 tests, ~40s including LSTM warm-up). For frontend verification of BUG-03 (formatDateID), BUG-09 (ConfirmDialog), BUG-10 (last-day-of-month period ticker), BUG-08 (export CSV), BUG-11/12/13 (error states + toast), login first (POST /api/auth/login) and seed token+user_data into localStorage, then wait for the 'Menyiapkan Finly' splash to disappear before querying testids — the splash can linger ~5-8s. The Budgeting React error boundary reproduces on a fresh account with no budgets; start there.",
+  "rca_of_the_issue": "Initial BUG-01 test failure was a test bug (I passed monthly_capital inside the /budgets payload; the backend saves it via the separate POST /monthly-capital endpoint). Fixed the test to call the right endpoint and it now PASSES, confirming server returns the correct total_expense=350000 and profit_loss=150000. The Budgeting.jsx React error for new users was NOT in the original bug list; it appears to be a separate regression and is the only issue needing main-agent attention."
+}

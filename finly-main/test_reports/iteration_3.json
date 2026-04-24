@@ -1,0 +1,43 @@
+{
+  "summary": "Iteration 3: Verified 3 user-reported fixes (Rp prefix, button layout, virtual capital row). Regression pytest 12/12 PASS. Code review confirmed all 3 fixes applied correctly in source. Found 1 critical latent bug: Budgeting.jsx references undefined function requestRemoveRow that will crash when user clicks trash on a budget editor row.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Budgeting.jsx",
+        "issue": "Line 319 onClick calls requestRemoveRow(i) but only rmRow is defined in scope (line 52). Clicking the trash icon on any budget editor row throws ReferenceError: requestRemoveRow is not defined. Either rename line 319 handler to rmRow, or rename the function at line 52 to requestRemoveRow (and adjust the delete-row confirm flow accordingly).",
+        "selector": "[data-testid='budget-remove-0']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_bug_fixes.py",
+    "/app/test_reports/pytest/bug_fixes_iter3.xml"
+  ],
+  "action_items": [
+    "CRITICAL: Fix Budgeting.jsx line 319: change onClick={() => requestRemoveRow(i)} to onClick={() => rmRow(i)} OR rename rmRow to requestRemoveRow. The current code will throw ReferenceError and break the budget row delete feature entirely.",
+    "After fix, re-run UI test to confirm budget row delete opens ConfirmDialog."
+  ],
+  "critical_code_review_comments": [
+    "Budgeting.jsx: undefined reference requestRemoveRow - crash on budget row trash click",
+    "UI-1 FIX VERIFIED in source: Budgeting.jsx:202 input uses pl-16 (64px padding); Rp span absolute left-3 (~12px) with small width (~22px) leaves ~30px gap - placeholder '0' will not be overlapped. Same pattern in TransactionForm.jsx.",
+    "UI-2 FIX VERIFIED in source: Budgeting.jsx:196 grid changed to md:grid-cols-[1fr_1fr_auto] and buttons wrapped in flex container with md:min-w-[220px]. Save + Trash on same row via flex gap-2, contained within capital card; next card is in a separate grid wrapper below.",
+    "FUNC-1/2/3 FIX VERIFIED in source: DetailTransaksi.jsx:36 prefetches capital via api.getMonthlyCapital; lines 172-181 render synthetic row with data-testid='detail-row-capital' guarded by page===1, amount>0, type in ('all','outcome'), category in ('all','Modal Awal'), and search matches. Virtual row correctly hidden when type=income.",
+    "FUNC-4 VERIFIED: virtual row gated by page===1, so it appears only on first page.",
+    "Regression: all 12 test_bug_fixes.py tests still PASS (user said 18 but repo contains 12)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (12/12 regression)", "frontend": "code-review verified for 3 reported fixes; 1 unrelated bug found"},
+  "test_credentials": "Registered fresh user demo_iter3_<timestamp>@demo.co.id / Password123 via API (used for live data prep).",
+  "seed_data_creation": "None persisted; created and deleted a 1,500,000 modal awal during Playwright run (but Playwright script aborted due to a Python parser quirk in the tool; regression + code review substituted).",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Playwright script kept failing parser validation on expressions with square brackets inside max()/arithmetic; workaround: store box['x'], box['y'] etc. in simple intermediate vars before doing math. Backend regression file needs REACT_APP_BACKEND_URL exported before running (it reads os.environ['REACT_APP_BACKEND_URL'] without fallback). Focus next iteration on verifying Budgeting row-delete fix and re-running the full UI Playwright flow for UI-1/UI-2/UI-3/FUNC-1..4.",
+  "rca of the issue": "Budgeting.jsx row-delete handler was refactored to use ConfirmDialog (function rmRow opens confirm state + doRemoveRow executes). However the onClick at line 319 still references an older/intended name requestRemoveRow that was never defined, so clicking the trash icon on any budget category row raises ReferenceError in React and surfaces as an unresponsive button + console error. Mitigation: rename either the definition or the call site so the identifier matches. One-line fix."
+}

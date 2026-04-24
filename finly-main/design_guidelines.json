@@ -1,0 +1,108 @@
+{
+  "project_info": {
+    "name": "Finly",
+    "description": "Financial Analyst dashboard application for startups and SMEs",
+    "target_audience": "Indonesian SMEs, Startup Founders, Financial Analysts",
+    "language": "id-ID",
+    "currency": "IDR"
+  },
+  "theme": {
+    "mode": "light",
+    "archetype": "Archetype 4 (Swiss & High-Contrast)",
+    "vibe": "Authority, precision, functional beauty, editorial ledger, serious finance",
+    "border_radius": "0px (Sharp edges) or max 2px (rounded-sm)",
+    "spacing_scale": "Generous (p-6, p-8 for containers, tight gap-4 for grids)"
+  },
+  "typography": {
+    "headings": {
+      "family": "Chivo",
+      "weights": ["400", "700", "900"],
+      "usage": "Page titles, KPI numbers, large structural text"
+    },
+    "body": {
+      "family": "IBM Plex Sans",
+      "weights": ["400", "500", "600"],
+      "usage": "Standard UI text, labels, descriptions"
+    },
+    "numbers_data": {
+      "family": "JetBrains Mono",
+      "weights": ["400", "500"],
+      "usage": "All financial figures, amounts, dates, table cells, and ML data points"
+    },
+    "rules": [
+      "No Inter or Roboto or Space Grotesk.",
+      "Tight tracking on headings (tracking-tighter).",
+      "Overlines must be uppercase, tiny, wide spacing (tracking-[0.2em])."
+    ]
+  },
+  "colors": {
+    "background": {
+      "primary": "#F7F7F5",
+      "secondary": "#FFFFFF",
+      "ml_widget": "#0A0A0A"
+    },
+    "text": {
+      "primary": "#0A0A0A",
+      "secondary": "#525252",
+      "inverse": "#FFFFFF",
+      "ml_widget": "#E5E5E5"
+    },
+    "border": {
+      "default": "rgba(10, 10, 10, 0.15)",
+      "strong": "rgba(10, 10, 10, 1)"
+    },
+    "accents": {
+      "primary_cta": "#0A0A0A",
+      "positive_income": "#059669",
+      "negative_expense": "#E11D48",
+      "ml_highlight": "#002FA7"
+    }
+  },
+  "layout_grids": {
+    "global_dashboard": "The Control Room Grid. 12-col base. Sidebar col-span-2 or 3, Main Content col-span-10 or 9.",
+    "kpi_cards": "grid-cols-1 md:grid-cols-2 lg:grid-cols-4. Tight gap (gap-4).",
+    "surfaces": "Grid Borders (The Technical Look). Expose the skeleton. border-collapse style layout. No drop shadows, just 1px solid borders."
+  },
+  "components_strategy": {
+    "buttons": "Sharp corners. hover:bg-black/90 hover:text-white. Use data-testid for all.",
+    "inputs": "Shadcn based. border-black/20 focus:border-black focus:ring-1 focus:ring-black.",
+    "tables": "Dense. JetBrains Mono for data cells. border-b border-black/10 on rows.",
+    "charts": "Recharts. No rounded bars. Sharp lines. Stroke width 2. Income = #059669, Expense = #E11D48.",
+    "ml_prediction_module": "Use the 'Terminal/Retro-futurism' micro-theme. Render this specific section with a deep black background, white/neon blue text, and stark glowing lines to visually distinguish 'AI Prediction' from 'Historical Data'."
+  },
+  "icons": {
+    "library": "@phosphor-icons/react",
+    "style": "Regular or Light weight. Minimalist.",
+    "install_command": "yarn add @phosphor-icons/react"
+  },
+  "accessibility": {
+    "testing": "All interactive elements MUST include data-testid attribute (e.g., data-testid='login-submit-button').",
+    "contrast": "Ensure APCA standards. Text over dark ML widget must be high contrast."
+  },
+  "media": {
+    "auth_hero_bg": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/f89a3af3-54d1-4851-9f16-06fb867da19f/images/821e45636459871532c1f3806bccf6726cd7b73bbe3c39f47177c080851ee430.png",
+      "description": "Abstract architectural graphic for Auth Page left split-screen. Use object-cover and grayscale filter for high contrast."
+    }
+  },
+  "module_specifics": {
+    "Auth": "Split screen layout. Left side: image auth_hero_bg (opacity 80%). Right side: Minimalist login form, purely functional.",
+    "Dashboard": "Beranda. 4 KPI cards: Total Pendapatan, Total Pengeluaran, Laba/Rugi, Jml Transaksi. Graph: AreaChart or LineChart for Daily Income vs Outcome.",
+    "Transaction Form": "Pencatatan Transaksi. Toggle (Pemasukan/Pengeluaran). Dropdown Kategori. Input Nominal (auto-format Rp). DatePicker (Shadcn Calendar).",
+    "Budgeting": "Anggaran. Table with Columns: Kategori, Anggaran (Target), Realisasi (Actual), Selisih (Difference). Use red/green for Selisih.",
+    "Transaction Details": "Detail Transaksi. Table with filter (Date/Category), search bar, pagination. Export to CSV button.",
+    "ML Prediction": "Prediksi ML. Day-range slider (7, 14, 30, custom). Terminal-styled cards for 'Estimasi Penjualan'. LineChart (Sales Forecast). Detail Table.",
+    "Prediction History": "Riwayat Prediksi. List of past runs. Click opens Shadcn Sheet (Drawer) on the right showing the detailed chart of that past run."
+  },
+  "instructions_to_main_agent": [
+    "You are working with .js / .jsx files, NOT TypeScript.",
+    "Do NOT use 'Inter', 'Roboto', or 'Space Grotesk'. Import 'Chivo', 'IBM Plex Sans', and 'JetBrains Mono' from Google Fonts.",
+    "For the ML module, wrap it in a div with 'bg-[#0A0A0A] text-[#E5E5E5] border border-white/20' to give it a distinct AI/Terminal vibe.",
+    "Use exact Indonesian terminology provided (Beranda, Prediksi ML, etc.).",
+    "Format all money as IDR (Rp X.XXX.XXX). Use Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).",
+    "Implement 'data-testid' aggressively on forms, buttons, and chart wrappers.",
+    "Replace all default Shadcn rounded borders with 'rounded-none' or 'rounded-sm' to maintain the Swiss Brutalist look.",
+    "Build the dashboard using CSS Grid with 1px border lines separating sections (Technical Layout).",
+    "Do not use generic blue/purple colors. Rely entirely on grayscale architecture with Signal Red/Green for semantic meaning."
+  ]
+}

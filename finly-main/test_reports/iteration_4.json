@@ -1,0 +1,35 @@
+{
+  "summary": "Iteration 4 verified Finly UI cleanup: money-group flex (prefix 'Rp' physically separated, zero overlap on empty & filled in both Transaksi and Anggaran), page-hero stripe reservation (padding-right 8.5rem desktop / 4.5rem mobile) keeping headings and month pickers clear at 1440px and 390px, and Dashboard KPI formula (total_expense = outcome + budget_total + monthly_capital; profit_loss = revenue - total_expense) validated both via backend pytest and via UI API call. All 3 backend regression tests pass.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_dashboard_regression.py",
+    "/app/test_reports/pytest/iter4_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Dashboard.jsx L89 has defensive fallback ((outcome+budget_total+monthly_capital)) even though backend now always returns total_expense — harmless but dead path; can be simplified to formatShort(data?.total_expense ?? 0).",
+    "TransactionForm.jsx uses static INCOME_CATEGORIES/OUTCOME_CATEGORIES from utils; categories labels must match exactly for select_option in automated tests (minor tester pain, not a prod issue).",
+    "server.py stores session expires_at as ISO string AND expires_at_dt for TTL — works, but dual-storage is a smell; future refactor could drop the string copy."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_dashboard_regression.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (3/3 pytest)",
+    "frontend": "100% for bug scope (FE-1, FE-2, FE-3 verified visually+programmatically at 1440 & 390; FE-4 verified via API+UI KPI subtitle; FE-5 tx CRUD save reached confirm dialog; capital CRUD save completed)"
+  },
+  "test_credentials": "finlytest_demo@demo.co.id / Password123 (registered during this iteration)",
+  "seed_data_creation": "Created iter4_* ephemeral users for pytest formula checks (revenue 2M, outcome 300k, budget 700k, capital 500k for 2026-01 → total_expense=1.5M, profit_loss=500k). Monthly capital for demo user set and deleted during UI flow.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Money-group pattern: .money-group is display:flex with .money-group__prefix (yellow, border-right, contains 'Rp') and .money-group__input (borderless transparent flex:1). Overlap is structurally impossible. Page-hero uses padding-right: 8.5rem (desktop) / 4.5rem (mobile) plus absolute ::before stripe occupying 120px/60px. Headings and month pickers remain inside reserved content zone. Dashboard subtitle under kpi-outcome formats as 'Rp OUTCOME · Anggaran Rp BUDGET[ · Modal Rp CAPITAL]' — conditional 'Modal' segment appears only when monthly_capital>0.",
+  "rca of the issue": "Previous fixes used absolute-positioned 'Rp' label with pl-12/pl-16 padding — fragile because long numbers or different fonts could still intersect the prefix. New implementation replaces absolute positioning with a flex-based two-box layout (prefix + input as siblings, divided by a 2px border). Verified geometry: prefix.right == input.left (gap = 0 at the border line) → zero overlap regardless of value length or viewport. Stripe-on-heading was fixed by reserving right padding on .page-hero, so children cannot be painted underneath the diagonal pseudo-element."
+}
